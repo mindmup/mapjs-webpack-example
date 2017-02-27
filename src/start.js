@@ -3,6 +3,8 @@ const MAPJS = require('mindmup-mapjs'),
 	jQuery = require('jquery'),
 	themeProvider = require('./theme'),
 	ThemeProcessor = require('mindmup-mapjs-layout').ThemeProcessor,
+	buildSvg = require('./build-svg'),
+	convertToPng = require('./convert-to-png'),
 	testMap = require('./example-map'),
 	content = require('mindmup-mapjs-model').content,
 	init = function () {
@@ -57,6 +59,17 @@ const MAPJS = require('mindmup-mapjs'),
 					oFReader.readAsText(fileInfo, 'UTF-8');
 				}
 			}
+		});
+		jQuery('#makeSvg').on('click', function () {
+			const mimeType = 'image/svg+xml',
+				content = buildSvg(mapModel.getIdea(), themeProvider, {
+					clipRect: { width: 300, height: 300 },
+					additionalCss: 'tspan, text {font-family:NotoSans, "Helvetica Neue", Roboto, Helvetica, Arial, sans-serif}'
+				}),
+				url = window.URL.createObjectURL(new window.Blob([content], {type: mimeType}));
+			convertToPng(url).then(function (pngUrl) {
+				window.open(pngUrl, 'svg', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');
+			});
 		});
 	};
 document.addEventListener('DOMContentLoaded', init);
